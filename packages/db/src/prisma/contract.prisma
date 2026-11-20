@@ -1,0 +1,95 @@
+// use prisma-8
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum Sentiment {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
+
+model Sources {
+  id            Uuid                  @id @onCreate(uuid())
+  name          Varchar(255)
+  feedUrl       Text                  @unique @map("feed_url")
+  siteUrl       Text?                 @map("site_url")
+  language      Varchar(10)?
+  isActive      Boolean               @default(true) @map("is_active")
+  lastFetchedAt TimestamptzString()?  @map("last_fetched_at")               
+  createdAt     temporal.CreatedAt    @default(now()) @map("created_at")
+  updatedAt     temporal.UpdatedAt    @default(now()) @map("updated_at")
+  articles      Articles[]
+
+  @@map("SOURCES")
+}
+
+model Articles {
+  id            Uuid                  @id @onCreate(uuid())
+  sourceId      Uuid                  @map("source_id")
+  categoryId    Uuid?                 @map("category_id")
+  source        Sources               @relation(fields: [sourceId], references: [id])
+  category      Categories?           @relation(fields: [categoryId], references: [id])
+  title         Text
+  url           Text                  @unique
+  description   Text?
+  content       Text?
+  imageUrl      Text?                 @map("image_url")
+  author        Varchar(255)?
+  status        ArticleStatus         @default(PUBLISHED)
+  publishedAt   TimestamptzString()?  @map("published_at")
+  createdAt     temporal.CreatedAt    @default(now()) @map("created_at")
+  updatedAt     temporal.UpdatedAt    @default(now()) @map("updated_at")
+  summary       Summaries?
+  articleTags   ArticleTags[]
+
+  @@map("ARTICLES")
+}
+
+model Summaries {
+  id            Uuid                  @id @onCreate(uuid())
+  articleId     Uuid                  @unique @map("article_id")
+  article       Articles              @relation(fields: [articleId], references: [id])
+  summary       Text    
+  sentiment     Sentiment?
+  model         Varchar(100)
+  promptVersion Varchar(50)?          @map("prompt_version")
+  tokensUsed    Int?                  @map("tokens_used")
+  processedAt   TimestamptzString()?  @map("processed_at")
+  createdAt     temporal.CreatedAt    @default(now()) @map("created_at")
+  updatedAt     temporal.UpdatedAt    @default(now()) @map("updated_at")
+
+  @@map("SUMMARIES")
+}
+
+model Categories {
+  id            Uuid                  @id @onCreate(uuid())
+  name          Varchar(100)
+  createdAt     temporal.CreatedAt    @default(now()) @map("created_at")
+  articles      Articles[]
+
+  @@map("CATEGORIES")
+}
+
+model Tags {
+  id            Uuid                  @id @onCreate(uuid())
+  name          Varchar(100)
+  createdAt     temporal.CreatedAt    @default(now()) @map("created_at")
+  articlesTags  ArticleTags[]
+
+  @@map("TAGS")
+}
+
+model ArticleTags {
+  articleId     Uuid                  @map("article_id")
+  tagId         Uuid                  @map("tag_id")
+  article       Articles              @relation(fields: [articleId], references: [id])
+  tag           Tags                  @relation(fields: [tagId], references: [id])
+  assignedAt    temporal.CreatedAt    @default(now()) @map("assigned_at")
+
+  @@id([articleId, tagId])
+  @@map("ARTICLE_TAGS")
+}
