@@ -1,0 +1,909 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.ARTICLES",
+    "label": "Create table \"ARTICLES\"",
+    "summary": "Creates table \"ARTICLES\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "ARTICLES"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"ARTICLES\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ARTICLES\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"ARTICLES\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"ARTICLES\"",
+        "sql": "CREATE TABLE \"public\".\"ARTICLES\" (\n  \"author\" character varying(255),\n  \"category_id\" uuid,\n  \"content\" text,\n  \"created_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"description\" text,\n  \"id\" uuid NOT NULL,\n  \"image_url\" text,\n  \"published_at\" timestamptz,\n  \"source_id\" uuid NOT NULL,\n  \"status\" text DEFAULT 'PUBLISHED' NOT NULL,\n  \"title\" text NOT NULL,\n  \"updated_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"url\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"ARTICLES_status_check_bc64f66b\" CHECK (\"status\" IN ('DRAFT', 'PUBLISHED', 'ARCHIVED'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"ARTICLES\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"ARTICLES\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"ARTICLES\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.ARTICLE_TAGS",
+    "label": "Create table \"ARTICLE_TAGS\"",
+    "summary": "Creates table \"ARTICLE_TAGS\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "ARTICLE_TAGS"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"ARTICLE_TAGS\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ARTICLE_TAGS\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"ARTICLE_TAGS\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"ARTICLE_TAGS\"",
+        "sql": "CREATE TABLE \"public\".\"ARTICLE_TAGS\" (\n  \"article_id\" uuid NOT NULL,\n  \"assigned_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"tag_id\" uuid NOT NULL,\n  PRIMARY KEY (\"article_id\", \"tag_id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"ARTICLE_TAGS\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"ARTICLE_TAGS\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"ARTICLE_TAGS\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.CATEGORIES",
+    "label": "Create table \"CATEGORIES\"",
+    "summary": "Creates table \"CATEGORIES\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "CATEGORIES"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"CATEGORIES\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"CATEGORIES\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"CATEGORIES\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"CATEGORIES\"",
+        "sql": "CREATE TABLE \"public\".\"CATEGORIES\" (\n  \"created_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"name\" character varying(100) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"CATEGORIES\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"CATEGORIES\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"CATEGORIES\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.SOURCES",
+    "label": "Create table \"SOURCES\"",
+    "summary": "Creates table \"SOURCES\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "SOURCES"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"SOURCES\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"SOURCES\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"SOURCES\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"SOURCES\"",
+        "sql": "CREATE TABLE \"public\".\"SOURCES\" (\n  \"created_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"feed_url\" text NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"is_active\" bool DEFAULT true NOT NULL,\n  \"language\" character varying(10),\n  \"last_fetched_at\" timestamptz,\n  \"name\" character varying(255) NOT NULL,\n  \"site_url\" text,\n  \"updated_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"SOURCES\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"SOURCES\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"SOURCES\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.SUMMARIES",
+    "label": "Create table \"SUMMARIES\"",
+    "summary": "Creates table \"SUMMARIES\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "SUMMARIES"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"SUMMARIES\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"SUMMARIES\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"SUMMARIES\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"SUMMARIES\"",
+        "sql": "CREATE TABLE \"public\".\"SUMMARIES\" (\n  \"article_id\" uuid NOT NULL,\n  \"created_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"model\" character varying(100) NOT NULL,\n  \"processed_at\" timestamptz,\n  \"prompt_version\" character varying(50),\n  \"sentiment\" text,\n  \"summary\" text NOT NULL,\n  \"tokens_used\" int4,\n  \"updated_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"SUMMARIES_sentiment_check_b66bdfdc\" CHECK (\"sentiment\" IN ('POSITIVE', 'NEUTRAL', 'NEGATIVE'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"SUMMARIES\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"SUMMARIES\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"SUMMARIES\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.TAGS",
+    "label": "Create table \"TAGS\"",
+    "summary": "Creates table \"TAGS\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "TAGS"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"TAGS\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"TAGS\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"TAGS\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"TAGS\"",
+        "sql": "CREATE TABLE \"public\".\"TAGS\" (\n  \"created_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"name\" character varying(100) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"TAGS\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"TAGS\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"TAGS\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "unique.ARTICLES.ARTICLES_url_key",
+    "label": "Add unique constraint on \"ARTICLES\" (url)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "ARTICLES_url_key",
+        "table": "ARTICLES"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"ARTICLES_url_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ARTICLES_url_key",
+          "public",
+          "\"public\".\"ARTICLES\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"ARTICLES_url_key\" on \"ARTICLES\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"ARTICLES_url_key\"",
+        "sql": "ALTER TABLE \"public\".\"ARTICLES\" ADD CONSTRAINT \"ARTICLES_url_key\" UNIQUE (\"url\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"ARTICLES_url_key\" exists on (url)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "ARTICLES_url_key",
+          "public",
+          "\"public\".\"ARTICLES\"",
+          "u",
+          "[\"url\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.SOURCES.SOURCES_feed_url_key",
+    "label": "Add unique constraint on \"SOURCES\" (feed_url)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "SOURCES_feed_url_key",
+        "table": "SOURCES"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"SOURCES_feed_url_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "SOURCES_feed_url_key",
+          "public",
+          "\"public\".\"SOURCES\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"SOURCES_feed_url_key\" on \"SOURCES\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"SOURCES_feed_url_key\"",
+        "sql": "ALTER TABLE \"public\".\"SOURCES\" ADD CONSTRAINT \"SOURCES_feed_url_key\" UNIQUE (\"feed_url\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"SOURCES_feed_url_key\" exists on (feed_url)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "SOURCES_feed_url_key",
+          "public",
+          "\"public\".\"SOURCES\"",
+          "u",
+          "[\"feed_url\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.SUMMARIES.SUMMARIES_article_id_key",
+    "label": "Add unique constraint on \"SUMMARIES\" (article_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "SUMMARIES_article_id_key",
+        "table": "SUMMARIES"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"SUMMARIES_article_id_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "SUMMARIES_article_id_key",
+          "public",
+          "\"public\".\"SUMMARIES\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"SUMMARIES_article_id_key\" on \"SUMMARIES\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"SUMMARIES_article_id_key\"",
+        "sql": "ALTER TABLE \"public\".\"SUMMARIES\" ADD CONSTRAINT \"SUMMARIES_article_id_key\" UNIQUE (\"article_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"SUMMARIES_article_id_key\" exists on (article_id)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "SUMMARIES_article_id_key",
+          "public",
+          "\"public\".\"SUMMARIES\"",
+          "u",
+          "[\"article_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ARTICLES.ARTICLES_category_id_idx_da7213d4",
+    "label": "Create index \"ARTICLES_category_id_idx_da7213d4\" on \"ARTICLES\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ARTICLES_category_id_idx_da7213d4",
+        "table": "ARTICLES"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ARTICLES_category_id_idx_da7213d4\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ARTICLES_category_id_idx_da7213d4\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ARTICLES_category_id_idx_da7213d4\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ARTICLES_category_id_idx_da7213d4\"",
+        "sql": "CREATE INDEX \"ARTICLES_category_id_idx_da7213d4\" ON \"public\".\"ARTICLES\" (\"category_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ARTICLES_category_id_idx_da7213d4\" exists on \"ARTICLES\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ARTICLES_category_id_idx_da7213d4\"",
+          "i",
+          "I",
+          "\"public\".\"ARTICLES\"",
+          "btree",
+          "[\"category_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ARTICLES.ARTICLES_source_id_idx_b2d19e21",
+    "label": "Create index \"ARTICLES_source_id_idx_b2d19e21\" on \"ARTICLES\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ARTICLES_source_id_idx_b2d19e21",
+        "table": "ARTICLES"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ARTICLES_source_id_idx_b2d19e21\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ARTICLES_source_id_idx_b2d19e21\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ARTICLES_source_id_idx_b2d19e21\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ARTICLES_source_id_idx_b2d19e21\"",
+        "sql": "CREATE INDEX \"ARTICLES_source_id_idx_b2d19e21\" ON \"public\".\"ARTICLES\" (\"source_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ARTICLES_source_id_idx_b2d19e21\" exists on \"ARTICLES\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ARTICLES_source_id_idx_b2d19e21\"",
+          "i",
+          "I",
+          "\"public\".\"ARTICLES\"",
+          "btree",
+          "[\"source_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ARTICLE_TAGS.ARTICLE_TAGS_article_id_idx_fafef5f5",
+    "label": "Create index \"ARTICLE_TAGS_article_id_idx_fafef5f5\" on \"ARTICLE_TAGS\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ARTICLE_TAGS_article_id_idx_fafef5f5",
+        "table": "ARTICLE_TAGS"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ARTICLE_TAGS_article_id_idx_fafef5f5\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ARTICLE_TAGS_article_id_idx_fafef5f5\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ARTICLE_TAGS_article_id_idx_fafef5f5\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ARTICLE_TAGS_article_id_idx_fafef5f5\"",
+        "sql": "CREATE INDEX \"ARTICLE_TAGS_article_id_idx_fafef5f5\" ON \"public\".\"ARTICLE_TAGS\" (\"article_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ARTICLE_TAGS_article_id_idx_fafef5f5\" exists on \"ARTICLE_TAGS\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ARTICLE_TAGS_article_id_idx_fafef5f5\"",
+          "i",
+          "I",
+          "\"public\".\"ARTICLE_TAGS\"",
+          "btree",
+          "[\"article_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ARTICLE_TAGS.ARTICLE_TAGS_tag_id_idx_94b47830",
+    "label": "Create index \"ARTICLE_TAGS_tag_id_idx_94b47830\" on \"ARTICLE_TAGS\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ARTICLE_TAGS_tag_id_idx_94b47830",
+        "table": "ARTICLE_TAGS"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ARTICLE_TAGS_tag_id_idx_94b47830\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ARTICLE_TAGS_tag_id_idx_94b47830\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"ARTICLE_TAGS_tag_id_idx_94b47830\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ARTICLE_TAGS_tag_id_idx_94b47830\"",
+        "sql": "CREATE INDEX \"ARTICLE_TAGS_tag_id_idx_94b47830\" ON \"public\".\"ARTICLE_TAGS\" (\"tag_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ARTICLE_TAGS_tag_id_idx_94b47830\" exists on \"ARTICLE_TAGS\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"ARTICLE_TAGS_tag_id_idx_94b47830\"",
+          "i",
+          "I",
+          "\"public\".\"ARTICLE_TAGS\"",
+          "btree",
+          "[\"tag_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ARTICLES.ARTICLES_source_id_fkey",
+    "label": "Add foreign key \"ARTICLES_source_id_fkey\" on \"ARTICLES\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ARTICLES_source_id_fkey",
+        "table": "ARTICLES"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ARTICLES_source_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ARTICLES_source_id_fkey",
+          "public",
+          "\"public\".\"ARTICLES\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"ARTICLES_source_id_fkey\" on \"ARTICLES\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ARTICLES_source_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ARTICLES\"\nADD CONSTRAINT \"ARTICLES_source_id_fkey\"\nFOREIGN KEY (\"source_id\")\nREFERENCES \"public\".\"SOURCES\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ARTICLES_source_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "ARTICLES_source_id_fkey",
+          "public",
+          "\"public\".\"ARTICLES\"",
+          "f",
+          "[\"source_id\"]",
+          "\"public\".\"SOURCES\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ARTICLES.ARTICLES_category_id_fkey",
+    "label": "Add foreign key \"ARTICLES_category_id_fkey\" on \"ARTICLES\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ARTICLES_category_id_fkey",
+        "table": "ARTICLES"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ARTICLES_category_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ARTICLES_category_id_fkey",
+          "public",
+          "\"public\".\"ARTICLES\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"ARTICLES_category_id_fkey\" on \"ARTICLES\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ARTICLES_category_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ARTICLES\"\nADD CONSTRAINT \"ARTICLES_category_id_fkey\"\nFOREIGN KEY (\"category_id\")\nREFERENCES \"public\".\"CATEGORIES\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ARTICLES_category_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "ARTICLES_category_id_fkey",
+          "public",
+          "\"public\".\"ARTICLES\"",
+          "f",
+          "[\"category_id\"]",
+          "\"public\".\"CATEGORIES\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ARTICLE_TAGS.ARTICLE_TAGS_article_id_fkey",
+    "label": "Add foreign key \"ARTICLE_TAGS_article_id_fkey\" on \"ARTICLE_TAGS\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ARTICLE_TAGS_article_id_fkey",
+        "table": "ARTICLE_TAGS"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ARTICLE_TAGS_article_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ARTICLE_TAGS_article_id_fkey",
+          "public",
+          "\"public\".\"ARTICLE_TAGS\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"ARTICLE_TAGS_article_id_fkey\" on \"ARTICLE_TAGS\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ARTICLE_TAGS_article_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ARTICLE_TAGS\"\nADD CONSTRAINT \"ARTICLE_TAGS_article_id_fkey\"\nFOREIGN KEY (\"article_id\")\nREFERENCES \"public\".\"ARTICLES\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ARTICLE_TAGS_article_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "ARTICLE_TAGS_article_id_fkey",
+          "public",
+          "\"public\".\"ARTICLE_TAGS\"",
+          "f",
+          "[\"article_id\"]",
+          "\"public\".\"ARTICLES\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ARTICLE_TAGS.ARTICLE_TAGS_tag_id_fkey",
+    "label": "Add foreign key \"ARTICLE_TAGS_tag_id_fkey\" on \"ARTICLE_TAGS\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ARTICLE_TAGS_tag_id_fkey",
+        "table": "ARTICLE_TAGS"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ARTICLE_TAGS_tag_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ARTICLE_TAGS_tag_id_fkey",
+          "public",
+          "\"public\".\"ARTICLE_TAGS\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"ARTICLE_TAGS_tag_id_fkey\" on \"ARTICLE_TAGS\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ARTICLE_TAGS_tag_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ARTICLE_TAGS\"\nADD CONSTRAINT \"ARTICLE_TAGS_tag_id_fkey\"\nFOREIGN KEY (\"tag_id\")\nREFERENCES \"public\".\"TAGS\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ARTICLE_TAGS_tag_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "ARTICLE_TAGS_tag_id_fkey",
+          "public",
+          "\"public\".\"ARTICLE_TAGS\"",
+          "f",
+          "[\"tag_id\"]",
+          "\"public\".\"TAGS\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.SUMMARIES.SUMMARIES_article_id_fkey",
+    "label": "Add foreign key \"SUMMARIES_article_id_fkey\" on \"SUMMARIES\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "SUMMARIES_article_id_fkey",
+        "table": "SUMMARIES"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"SUMMARIES_article_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "SUMMARIES_article_id_fkey",
+          "public",
+          "\"public\".\"SUMMARIES\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"SUMMARIES_article_id_fkey\" on \"SUMMARIES\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"SUMMARIES_article_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"SUMMARIES\"\nADD CONSTRAINT \"SUMMARIES_article_id_fkey\"\nFOREIGN KEY (\"article_id\")\nREFERENCES \"public\".\"ARTICLES\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"SUMMARIES_article_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "SUMMARIES_article_id_fkey",
+          "public",
+          "\"public\".\"SUMMARIES\"",
+          "f",
+          "[\"article_id\"]",
+          "\"public\".\"ARTICLES\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]
