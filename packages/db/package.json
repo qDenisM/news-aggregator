@@ -13,5 +13,9 @@
     "@prisma/cli-engine": "0.10.0",
     "@types/node": "^20.19.43",
     "prisma": "8.0.0-rc.34"
-  }
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./src/index.ts"
 }
